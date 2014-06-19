@@ -23,29 +23,28 @@ public class CopyAttachments {
 
 		Stopwatch s = new Stopwatch();
 		s.start();
+		newLocation = System.getProperty("user.home") + "/Desktop/" + original + "/";
+		int loc = 0;
+		nL = new File(newLocation);
+		while(!nL.mkdir()){
+			nL = new File(System.getProperty("user.home") + "/Desktop/" + original + loc);
+			loc++;
+		}
+		FileLister findFiles = new FileLister(location);
+		TreeMap<String, String> SMSAttachments = new TreeMap<String,String> ();
 		
-//		newLocation = System.getProperty("user.home") + "/Desktop/" + original + "/";
-//		int loc = 0;
-//		nL = new File(newLocation);
-//		while(!nL.mkdir()){
-//			nL = new File(System.getProperty("user.home") + "/Desktop/" + original + loc);
-//			loc++;
-//		}
-//		FileLister findFiles = new FileLister(location);
-//		TreeMap<String, String> SMSAttachments = new TreeMap<String,String> ();
-//		
-//		for(Entry<String, FileInfo> entry : findFiles.fileInfoList.entrySet()) {
-//			  String key = entry.getKey();
-//			  FileInfo value = entry.getValue();
-//			  if(value.getFilename().contains("Library/SMS/Attachments/") && 
-//					  !value.getFilename().contains("preview" ) && !value.getFilename().contains(".DS_Store")){ //and the ds.Store file...
-//				  String originalFileName = nameOfFile(value.getFilename());
-//				  SMSAttachments.put(key, originalFileName);
-//			  }
-//		}
-//		
-//		//make it run from copyFiles.
-//		copythefiles(location, SMSAttachments);
+		for(Entry<String, FileInfo> entry : findFiles.fileInfoList.entrySet()) {
+			  String key = entry.getKey();
+			  FileInfo value = entry.getValue();
+			  if(value.getFilename().contains("Library/SMS/Attachments/") && 
+					  !value.getFilename().contains("preview" ) && !value.getFilename().contains(".DS_Store")){ //and the ds.Store file...
+				  String originalFileName = nameOfFile(value.getFilename());
+				  SMSAttachments.put(key, originalFileName);
+			  }
+		}
+		
+		//make it run from copyFiles.
+		copythefiles(location, SMSAttachments);
 		s.stop();
 		results = "CopyAttachemnts took " + s.time() + " seconds to copy " + counter + " files";
 		OpenFolderButton.text.append(results);
