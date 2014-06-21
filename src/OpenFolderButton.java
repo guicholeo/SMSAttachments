@@ -11,6 +11,7 @@ import javax.swing.text.DefaultCaret;
 */
 	
 public class OpenFolderButton implements ActionListener{
+	private String username = System.getProperty("user.home");
 	private File path;
 	JFrame frame;
 	static JTextArea text;
@@ -54,7 +55,7 @@ public class OpenFolderButton implements ActionListener{
             protected Integer doInBackground() {//Perform the required GUI update here.
                 try
                 {
-                	JFileChooser f = new JFileChooser("/Users/leo/Library/Application Support/MobileSync/Backup");
+                	JFileChooser f = new JFileChooser(username + "Library/Application Support/MobileSync/Backup");
             		f.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             		int returnVal = f.showOpenDialog(frame);
             		path = f.getSelectedFile();
