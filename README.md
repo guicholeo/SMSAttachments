@@ -1,7 +1,7 @@
 CopyAttachments
 ===============
 
-A program that wil copy all your SMS attachments from the backup folder of the iDevice and will organize them with the orignal name and in a folder.
+Transfer SMS attachments from iPhone or any iDevice. The program will organize the files in a folder on your desktop and it will get rid of the files that are not needed. For example: .DS_Store, and the preview file of the image or video.
 
 Download Link
 =============
