@@ -1,18 +1,22 @@
 import javax.swing.*;
+
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+
 import javax.swing.text.DefaultCaret;
 /**
 * CopyAttachemnts.
 * @author Luis Sanchez @leosanchez16 
+* Little bug when the user click cancel and tries to open the folder again, it freezes. fix?
 */
 	
 public class OpenFolderButton implements ActionListener{
 	private String username = System.getProperty("user.home");
-	private File path;
+	private int returnVal;
+	private JFileChooser openWindow;
 	JFrame frame;
 	static JTextArea text;
 	static JScrollPane scrollPane;
@@ -43,45 +47,33 @@ public class OpenFolderButton implements ActionListener{
 				+ "your Desktop. Only for Mac right now. Please select the backup folder and let the program do the rest.\n");
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public void actionPerformed(ActionEvent e) {
-
 		//fix this when clicking cancel.
 		if (worker!=null){
 			worker.cancel(true);
         }
 		worker = new SwingWorker(){
             @Override
-            protected Integer doInBackground() {//Perform the required GUI update here.
-                try
-                {
-                	JFileChooser f = new JFileChooser(username + "Library/Application Support/MobileSync/Backup");
-            		f.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            		int returnVal = f.showOpenDialog(frame);
-            		path = f.getSelectedFile();
-            		if(!path.toString().contains("Library/Application Support/MobileSync/Backup")){
-            			boolean valid = false;
-            			while (!valid){
-            				JOptionPane.showMessageDialog(null, "Please Select the appropriate folder");
-            				returnVal = f.showOpenDialog(frame);
-            				path = f.getSelectedFile();
-            				if(returnVal == JFileChooser.APPROVE_OPTION &&
-            						path.toString().contains("Library/Application Support/MobileSync/Backup"))
-            					valid = true;
-            				else
-            					valid = true;
-            			}
-            		}
-            		 if (returnVal == JFileChooser.APPROVE_OPTION) {
-            			 path = f.getSelectedFile();
+            protected Integer doInBackground() {
+              //  try
+                //{
+                	openWindow = new JFileChooser(username + "/Library/Application Support/MobileSync/Backup");
+                	openWindow.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            		returnVal = openWindow.showOpenDialog(frame);
+            		File path = openWindow.getSelectedFile();
+            		if(returnVal == JFileChooser.APPROVE_OPTION && checkIfValidFolder(path)) {
             			 try {
-            				
+            				 //what if the folder doesnt contain the file madifest? or what ever is called? fix.
             				CopyAttachments doWork = new CopyAttachments(path);
             			} catch (Exception e1) {
             				e1.printStackTrace();
             			}
-            		 }
-                }catch(Exception ex){}
+            		}else{
+            			JOptionPane.showMessageDialog(null, "Thank you for using the program, please close the program to select a folder again.");
+            		}
+               // }catch(Exception ex){} //need?
                 return 0;
             }       
         };
@@ -90,5 +82,22 @@ public class OpenFolderButton implements ActionListener{
 		
 	}
 
-	
+	protected boolean checkIfValidFolder(File path) {
+		if(!path.toString().contains("Library/Application Support/MobileSync/Backup")){
+			boolean validLocation = false;
+			while (!validLocation){
+				JOptionPane.showMessageDialog(null, "Please Select the appropriate folder");
+				returnVal = openWindow.showOpenDialog(frame);
+				path = openWindow.getSelectedFile();
+				if(returnVal == JFileChooser.APPROVE_OPTION &&
+						path.toString().contains("Library/Application Support/MobileSync/Backup"))
+					validLocation = true;
+				if(returnVal == JFileChooser.CANCEL_OPTION){
+					return false;
+				}
+			}
+			return true;
+		}
+		return true;
+	}	
 }
