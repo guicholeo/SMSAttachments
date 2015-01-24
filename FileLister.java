@@ -16,7 +16,7 @@ import java.util.Map.Entry;
  * http://stackoverflow.com/questions/3085153/how-to-parse-the-manifest-mbdb-file-in-an-ios-4-0-itunes-backup
  * 
  * @author Roy van Rijn
- * minimal editing by Luis Sanchez
+ * added a few lines of code : Luis Sanchez
  * 
  */
 public class FileLister {
@@ -26,7 +26,7 @@ public class FileLister {
 		(byte) '8', (byte) '9', (byte) 'a', (byte) 'b', (byte) 'c',
 		(byte) 'd', (byte) 'e', (byte) 'f' };
 
-	final Map<String, FileInfo> fileInfoList;
+	final Map<String, String> fileInfoList;
 	final File backupPath;
 	
 	
@@ -41,7 +41,7 @@ public class FileLister {
 
 	int offset;
 
-	public Map<String, FileInfo> processMbdbFile(File mbdb) throws Exception {
+	public Map<String, String> processMbdbFile(File mbdb) throws Exception {
 		BufferedInputStream stream = new BufferedInputStream(new FileInputStream(mbdb));
 		byte[] checkFile = new byte[4];
 		stream.read(checkFile, 0, 4);
@@ -52,7 +52,7 @@ public class FileLister {
 		stream.read();
 		offset = 6;
 
-		Map<String, FileInfo> files = new HashMap<String, FileInfo>();
+		Map<String, String> files = new HashMap<String, String>();
 		while (stream.available() > 0) {
 
 			FileInfo info = new FileInfo();
@@ -79,8 +79,15 @@ public class FileLister {
 				String propValue = getString(stream);
 				info.getProperties().put(propName, propValue);
 			}
-			if(info.getDomain().equalsIgnoreCase("MediaDomain"))	
-				files.put(makeHashString(info),info);
+
+			
+			String fileName = info.getFilename();
+			if(info.getDomain().equalsIgnoreCase("MediaDomain") && fileName.contains("Library/SMS/Attachments/") 
+					&& !fileName.contains("preview") && !fileName.contains(".DS_Store")){
+				
+				files.put(makeHashString(info),fileName);
+			}
+				
 		}
 		return files;
 	}
@@ -88,6 +95,7 @@ public class FileLister {
 	
 	private String makeHashString(FileInfo info) throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		String filePath = info.getDomain() + "-" + info.getFilename();
+		
 		return Hashing.SHA1(filePath);
 	}
 
