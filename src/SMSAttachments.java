@@ -26,12 +26,12 @@ public class SMSAttachments {
 		makeNewFolder();
 		//will find the files that are needed to copy. jus the SMS attachments.
 		findTheFiles(location);
-		System.out.println(SMSAttachments.size());
 		//copy the files by iterating through the SMSAttachments map
 		copyFiles(location, SMSAttachments);
 		s.stop();
 		System.out.println("\nThe program took " + s.time() + " seconds to finish copying " + counter + " files to "
 				+ nL.getAbsolutePath());
+		System.out.println("Follow me on Twitter @leosanchez16");
 		
 	}
 
