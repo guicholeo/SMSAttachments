@@ -7,7 +7,7 @@ import java.util.Map;
  * This class holds all the information stored in the Manifest files in the iPhone backup directory.
  * 
  * @author Roy van Rijn
- * 
+ * added two methods @author leo
  */
 public class FileInfo {
 	
@@ -28,6 +28,7 @@ public class FileInfo {
 	private int filelen;
 	private int flag;
 	private int numprops;
+	private String originalName;
 	
 	private Map<String, String> properties = new HashMap<String, String>();
 	
@@ -132,6 +133,12 @@ public class FileInfo {
 	}
 	public void setNumprops(int numprops) {
 		this.numprops = numprops;
+	}
+	public String getOriginalName(){
+		return originalName;
+	}
+	public void setOriginalName(String originalName){
+		this.originalName = originalName;
 	}
 	public Map<String, String> getProperties() {
 		return properties;

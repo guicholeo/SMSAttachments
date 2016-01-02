@@ -4,11 +4,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 /**
  * This class is used to list the files inside the iPhone backup directory.<br/> 
@@ -16,7 +19,7 @@ import java.util.Map.Entry;
  * http://stackoverflow.com/questions/3085153/how-to-parse-the-manifest-mbdb-file-in-an-ios-4-0-itunes-backup
  * 
  * @author Roy van Rijn
- * added a few lines of code : Luis Sanchez
+ * added a few lines of code and modified a few lines @author leo
  * 
  */
 public class FileLister {
@@ -26,7 +29,7 @@ public class FileLister {
 		(byte) '8', (byte) '9', (byte) 'a', (byte) 'b', (byte) 'c',
 		(byte) 'd', (byte) 'e', (byte) 'f' };
 
-	final Map<String, String> fileInfoList;
+	final Map<String, FileInfo> fileInfoList;
 	final File backupPath;
 	
 	
@@ -41,7 +44,7 @@ public class FileLister {
 
 	int offset;
 
-	public Map<String, String> processMbdbFile(File mbdb) throws Exception {
+	public Map<String, FileInfo> processMbdbFile(File mbdb) throws Exception {
 		BufferedInputStream stream = new BufferedInputStream(new FileInputStream(mbdb));
 		byte[] checkFile = new byte[4];
 		stream.read(checkFile, 0, 4);
@@ -51,8 +54,9 @@ public class FileLister {
 		stream.read(); // Unknown bytes
 		stream.read();
 		offset = 6;
+		
 
-		Map<String, String> files = new HashMap<String, String>();
+		Map<String, FileInfo> files = new HashMap<String, FileInfo>();
 		while (stream.available() > 0) {
 
 			FileInfo info = new FileInfo();
@@ -80,18 +84,46 @@ public class FileLister {
 				info.getProperties().put(propName, propValue);
 			}
 
-			
+			//added by me. info.getMode() == 33188 to only add the files to the Map, and not the folders too.
 			String fileName = info.getFilename();
 			if(info.getDomain().equalsIgnoreCase("MediaDomain") && fileName.contains("Library/SMS/Attachments/") 
-					&& !fileName.contains("preview") && !fileName.contains(".DS_Store")){
-				
-				files.put(makeHashString(info),fileName);
+					&& info.getMode() == 33188 && !fileName.contains("preview") && !fileName.contains(".DS_Store")){
+				//tests
+				//how to manually add the properties to the file.
+				/*System.out.println("StartOffSet " + info.getStartOffset());
+				System.out.println("Domain      " + info.getDomain());
+				System.out.println("FileName    " + info.getFilename());
+				System.out.println("LinkTarget  " + info.getLinktarget());
+				System.out.println("Datahash    " + info.getDatahash());
+				System.out.println("Unknown1    " + info.getUnknown1());
+				System.out.println("Mode        " + info.getMode());
+				System.out.println("Unknown2    " + info.getUnknown2());
+				System.out.println("Unknown3    " + info.getUnknown3());
+				System.out.println("Userid      " + info.getUserid());
+				System.out.println("Groupid     " + info.getGroupid());
+				System.out.println("Mtime       " + info.getMtime());
+				System.out.println("Atime       " + info.getAtime());
+				System.out.println("Ctime       " + info.getCtime());
+				System.out.println("Filelen     " + info.getFilelen());
+				System.out.println("Flag        " + info.getFlag());
+				System.out.println("Numprops    " + info.getNumprops());
+				System.out.println("Properties  " + info.getProperties()); // rename to original filename from properties
+				for(Entry<String, String> entry : info.getProperties().entrySet()) {
+					  String part1 = entry.getKey();
+					  String part2 = entry.getValue();
+					  System.out.println ("properties: ");
+					  System.out.println ("part1: " + part1);
+					  System.out.println ("part2: " + part2);
+					  
+				}
+				System.out.println();*/
+				files.put(makeHashString(info),info);
 			}
 				
 		}
 		return files;
 	}
-
+	
 	
 	private String makeHashString(FileInfo info) throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		String filePath = info.getDomain() + "-" + info.getFilename();
